@@ -33,7 +33,7 @@ message Product {
   string name = 1;
   string price = 2;
   uint32 changes = 3;
-  google.protobuf.Timestamp updated = 4;
+  google.protobuf.Timestamp date = 4;
 }
 
 message ListReply {
