@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/pshvedko/grpc-product/product"
+	"github.com/pshvedko/grpc-product/service"
+	"google.golang.org/grpc"
 	"log"
 	"net"
-
-	"github.com/pshvedko/grpc-product/product"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -14,8 +14,11 @@ func main() {
 		log.Fatal(err)
 	}
 	defer listener.Close()
+	api := product.Server{
+		Service: &service.Service{},
+	}
 	server := grpc.NewServer()
-	product.RegisterProductServiceServer(server, product.Server{})
+	product.RegisterProductServiceServer(server, api)
 	if err := server.Serve(listener); err != nil {
 		log.Fatal(err)
 	}
