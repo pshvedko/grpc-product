@@ -65,10 +65,10 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 }
 
 type Product struct {
-	Name    string    `json:"name,omitempty"`
-	Price   string    `json:"price,omitempty"`
-	Changes uint32    `json:"changes,omitempty"`
-	Date    time.Time `json:"date,omitempty"`
+	Name    string    `json:"name"`
+	Price   string    `json:"price"`
+	Changes uint32    `json:"changes"`
+	Date    time.Time `json:"date"`
 }
 
 type iter struct {

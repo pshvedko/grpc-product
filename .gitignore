@@ -17,3 +17,5 @@
 
 *.sum
 *.pb.go
+client/client
+server/server
