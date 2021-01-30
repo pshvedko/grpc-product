@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = ".;product";
+
+import "google/protobuf/timestamp.proto";
+
+message FetchQuery {
+  string url = 1;
+}
+
+message FetchReply {
+  uint32 size = 1;
+}
+
+message Page {
+  uint32 limit = 1;
+  uint32 offset = 2;
+}
+
+message Sort {
+  bool order = 1;
+  string by = 2;
+}
+
+message ListQuery {
+  Page page = 1;
+  repeated Sort sort = 2;
+}
+
+message Product {
+  string name = 1;
+  string price = 2;
+  uint32 changes = 3;
+  google.protobuf.Timestamp updated = 4;
+}
+
+message ListReply {
+  repeated Product products = 1;
+}
+
+service ProductService {
+  rpc Fetch(FetchQuery) returns (FetchReply) {}
+  rpc List(ListQuery) returns (ListReply) {}
+}
+
