@@ -13,6 +13,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer listener.Close()
 	server := grpc.NewServer()
 	product.RegisterProductServiceServer(server, product.Server{})
 	if err := server.Serve(listener); err != nil {
