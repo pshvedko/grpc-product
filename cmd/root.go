@@ -11,7 +11,8 @@ import (
 var portFlag uint16
 
 var rootCmd = &cobra.Command{
-	Use: filepath.Base(os.Args[0]),
+	Use:           filepath.Base(os.Args[0]),
+	SilenceErrors: true,
 }
 
 func Execute() {

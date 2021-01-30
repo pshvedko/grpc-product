@@ -6,35 +6,6 @@ import (
 	"time"
 )
 
-//
-//if query == nil {
-//	return nil, ErrQuery
-//}
-//request, err := http.NewRequestWithContext(ctx, http.MethodGet, query.Url, nil)
-//var response *http.Response
-//response, err = s.Do(request)
-//if err != nil {
-//	return nil, err
-//}
-//defer response.Body.Close()
-//
-//r := csv.NewReader(response.Body)
-//r.Comma = ';'
-//r.Comment = '#'
-//r.FieldsPerRecord = 2
-//r.LazyQuotes = false
-//r.TrimLeadingSpace = true
-//
-//var records []string
-//records, err = r.Read()
-//if err != nil {
-//	return nil, err
-//}
-
-type FetchQuery interface {
-	GetUrl() string
-}
-
 type ListQuery interface {
 	GetPage() Page
 	GetSort() []Sort
@@ -55,20 +26,6 @@ type ListReply interface {
 	Close() error
 	Done() bool
 	Err() error
-}
-
-type Service struct {
-}
-
-func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
-	return 0, nil
-}
-
-type Product struct {
-	Name    string    `json:"name"`
-	Price   string    `json:"price"`
-	Changes uint32    `json:"changes"`
-	Date    time.Time `json:"date"`
 }
 
 type iter struct {
@@ -114,17 +71,17 @@ func (s Service) List(ctx context.Context, query ListQuery) (ListReply, error) {
 	return &iter{items: []Product{
 		{
 			Name:    "1",
-			Price:   "1",
+			Price:   1,
 			Changes: 10,
 			Date:    time.Now(),
 		}, {
 			Name:    "2",
-			Price:   "2",
+			Price:   2,
 			Changes: 20,
 			Date:    time.Now(),
 		}, {
 			Name:    "3",
-			Price:   "3",
+			Price:   3,
 			Changes: 30,
 			Date:    time.Now(),
 		},

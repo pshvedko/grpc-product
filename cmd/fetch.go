@@ -13,15 +13,18 @@ var fetchCmd = &cobra.Command{
 	Use:   "fetch url",
 	Args:  cobra.ExactArgs(1),
 	Short: "Load external CSV file",
-	Long: `The command loads a CSV file with the 'PRODUCT NAME; PRICE' format
-from the specified URL and saves it to MongoDB`,
-	RunE: runFetch,
+	Long:  "Fetches a CSV file with the 'PRODUCT NAME; PRICE' format from the specified URL and saves it to MongoDB",
+	RunE:  runFetch,
 }
 
 func runFetch(cmd *cobra.Command, args []string) (err error) {
-	_, err = url.Parse(args[0])
+	var u *url.URL
+	u, err = url.Parse(args[0])
 	if err != nil {
 		return
+	}
+	if u.Scheme == "" || u.Host == "" {
+		return fmt.Errorf("invalid url, please specify as 'http://host/file.csv'")
 	}
 	var dial *grpc.ClientConn
 	dial, err = grpc.Dial(fmt.Sprintf(":%v", portFlag), grpc.WithInsecure())
@@ -33,7 +36,7 @@ func runFetch(cmd *cobra.Command, args []string) (err error) {
 	var response *product.FetchReply
 	response, err = client.Fetch(context.TODO(), &product.FetchQuery{Url: args[0]})
 	if err != nil {
-		 return
+		return
 	}
 	fmt.Printf("Fetched %d rows\n", response.Size)
 	return

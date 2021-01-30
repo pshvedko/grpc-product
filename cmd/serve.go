@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net"
+	"net/http"
 
 	"github.com/pshvedko/grpc-product/product"
 	"github.com/pshvedko/grpc-product/service"
@@ -14,7 +15,7 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Args:  cobra.ExactArgs(0),
 	Short: "Operate in service mode",
-	Long:  `Starts operating in service mode with Fetch(url) and List(order, sort) methods`,
+	Long:  "Starts operating in service mode with Fetch(url) and List(order, sort) methods",
 	RunE:  runServe,
 }
 
@@ -26,7 +27,9 @@ func runServe(cmd *cobra.Command, args []string) (err error) {
 	}
 	defer listener.Close()
 	api := product.Server{
-		Service: &service.Service{},
+		Service: &service.Service{
+			Browser: &http.Client{},
+		},
 	}
 	server := grpc.NewServer()
 	product.RegisterProductServiceServer(server, api)
