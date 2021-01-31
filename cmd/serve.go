@@ -20,19 +20,32 @@ var serveCmd = &cobra.Command{
 	RunE:  runServe,
 }
 
-func runServe(cmd *cobra.Command, args []string) (err error) {
+func runServe(*cobra.Command, []string) (err error) {
 	var listener net.Listener
 	listener, err = net.Listen("tcp", fmt.Sprintf(":%v", portFlag))
 	if err != nil {
 		return
 	}
 	defer listener.Close()
-	api := &product.Server{
+	api := &product.API{
 		Service: &service.Service{
 			Browser: &http.Client{},
-			Storage: &storage.Mongo{},
+			Storage: &storage.Storage{
+				Mongo: &storage.Mongo{
+					Addrs:     []string{"192.168.0.244:27017"},
+					Database:  "foo",
+					Username:  "",
+					Password:  "",
+					PoolLimit: 10,
+				},
+			},
 		},
 	}
+	err = api.Start()
+	if err != nil {
+		return
+	}
+	defer api.Stop()
 	server := grpc.NewServer()
 	product.RegisterProductServiceServer(server, api)
 	err = server.Serve(listener)

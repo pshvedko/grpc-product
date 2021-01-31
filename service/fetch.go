@@ -29,11 +29,9 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 		return 0, err
 	}
 	defer response.Body.Close()
-
 	if response.StatusCode != 200 {
 		return 0, ErrStatus
 	}
-
 	r := csv.NewReader(response.Body)
 	r.Comma = ';'
 	r.Comment = '#'
@@ -41,7 +39,6 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 	r.TrimLeadingSpace = true
 	r.ReuseRecord = true
 	r.LazyQuotes = true
-
 	var price float64
 	var count uint32
 	var products []Product
@@ -64,13 +61,11 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 		})
 		count++
 	}
-
 	for _, product := range products {
 		err = s.Add(ctx, product)
 		if err != nil {
 			return 0, err
 		}
 	}
-
 	return count, nil
 }

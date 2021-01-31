@@ -1,6 +1,9 @@
 package storage
 
-import "context"
+import (
+	"context"
+	"github.com/globalsign/mgo"
+)
 
 type Product interface{}
 
@@ -20,13 +23,40 @@ type Iterator interface {
 	Err() error
 }
 
-type Mongo struct {
+type Mongo mgo.DialInfo
+
+func (m *Mongo) Info() *mgo.DialInfo {
+	return (*mgo.DialInfo)(m)
 }
 
-func (Mongo) Add(context.Context, Product) error {
-	return nil
+type Storage struct {
+	*Mongo
+	db *mgo.Database
 }
 
-func (Mongo) Find(context.Context, Pager, Sorter) (Iterator, error) {
+func (m *Storage) Start() error {
+	ses, err := mgo.DialWithInfo(m.Info())
+	if err != nil {
+		return err
+	}
+	m.db = ses.DB(m.Database)
+	_, err = migrate(m.db)
+	if err != nil {
+		m.Stop()
+	}
+	for i := 0; i < m.PoolLimit; i++ {
+	}
+	return err
+}
+
+func (m *Storage) Stop() {
+	m.db.Session.Close()
+}
+
+func (m *Storage) Add(_ context.Context, product Product) error {
+	return m.db.C("products").Insert(product)
+}
+
+func (Storage) Find(context.Context, Pager, Sorter) (Iterator, error) {
 	return nil, nil
 }

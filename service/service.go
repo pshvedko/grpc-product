@@ -12,9 +12,15 @@ type Browser interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
+type Starter interface {
+	Start() error
+	Stop()
+}
+
 type Storage interface {
 	Add(context.Context, storage.Product) error
 	Find(context.Context, storage.Pager, storage.Sorter) (storage.Iterator, error)
+	Starter
 }
 
 type Service struct {

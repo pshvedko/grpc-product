@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -26,13 +24,18 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "A brief description of your command",
 	Long:  "FIXME",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
-	},
+	RunE:  runList,
 }
 
-func init() {
-	rootCmd.AddCommand(listCmd)
+func runList(*cobra.Command, []string) error {
+	return nil
+}
 
-	listCmd.PersistentFlags().String("foo", "", "A help for foo")
+var limitFlag uint32
+var offsetFlag uint32
+
+func init() {
+	listCmd.PersistentFlags().Uint32VarP(&limitFlag, "limit", "l", 0, "limit rows on page")
+	listCmd.PersistentFlags().Uint32VarP(&offsetFlag, "offset", "0", 0, "offset of page")
+	rootCmd.AddCommand(listCmd)
 }

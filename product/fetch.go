@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func (s Server) Fetch(ctx context.Context, query *FetchQuery) (*FetchReply, error) {
+func (s API) Fetch(ctx context.Context, query *FetchQuery) (*FetchReply, error) {
 	log.Printf("fetch: %v", query)
 	if s.Service == nil {
 		return nil, ErrService

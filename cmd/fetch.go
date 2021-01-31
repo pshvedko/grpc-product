@@ -17,7 +17,7 @@ var fetchCmd = &cobra.Command{
 	RunE:  runFetch,
 }
 
-func runFetch(cmd *cobra.Command, args []string) (err error) {
+func runFetch(_ *cobra.Command, args []string) (err error) {
 	var u *url.URL
 	u, err = url.Parse(args[0])
 	if err != nil {

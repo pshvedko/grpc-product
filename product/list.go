@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func (s Server) List(ctx context.Context, query *ListQuery) (*ListReply, error) {
+func (s API) List(ctx context.Context, query *ListQuery) (*ListReply, error) {
 	log.Printf("list: %v", query)
 	if s.Service == nil {
 		return nil, ErrService

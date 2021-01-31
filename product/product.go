@@ -9,15 +9,16 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"strconv"
+	"time"
 )
 
 type Service interface {
 	Fetch(context.Context, service.FetchQuery) (uint32, error)
 	List(context.Context, service.ListQuery) (service.ListReply, error)
+	service.Starter
 }
 
-type Server struct {
+type API struct {
 	Service
 }
 
@@ -39,26 +40,23 @@ func (x *ListQuery) ForSort(f func(string, bool)) {
 	}
 }
 
+type product struct {
+	x    interface{}
+	Date time.Time `json:"date"`
+}
+
 func (x *Product) UnmarshalJSON(data []byte) (err error) {
-	var v service.Product
-	price := strconv.FormatFloat(v.Price, 'f', -1, 64)
+	v := product{x: x}
 	err = json.Unmarshal(data, &v)
-	if err != nil {
-		return
+	if err == nil {
+		x.Date = timestamppb.New(v.Date)
 	}
-	x.Name, x.Price, x.Changes, x.Date = v.Name, price, v.Changes, timestamppb.New(v.Date)
 	return
 }
 
 func (x *Product) MarshalJSON() ([]byte, error) {
-	price, err := strconv.ParseFloat(x.Price, 64)
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(service.Product{
-		Name:    x.Name,
-		Price:   price,
-		Changes: x.Changes,
-		Date:    x.Date.AsTime(),
+	return json.Marshal(product{
+		x:    x,
+		Date: x.Date.AsTime(),
 	})
 }
