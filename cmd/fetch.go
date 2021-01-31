@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-	"io"
-
+	"github.com/pshvedko/grpc-product/product"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"net/url"
 )
 
 var fetchCmd = &cobra.Command{
@@ -13,10 +15,28 @@ var fetchCmd = &cobra.Command{
 	Short: "Load external CSV file",
 	Long: `The command loads a CSV file with the 'PRODUCT NAME; PRICE' format
 from the specified URL and saves it to MongoDB`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("fetch called", args)
-		return io.EOF
-	},
+	RunE: runFetch,
+}
+
+func runFetch(cmd *cobra.Command, args []string) (err error) {
+	_, err = url.Parse(args[0])
+	if err != nil {
+		return
+	}
+	var dial *grpc.ClientConn
+	dial, err = grpc.Dial(fmt.Sprintf(":%v", portFlag), grpc.WithInsecure())
+	if err != nil {
+		return
+	}
+	defer dial.Close()
+	client := product.NewProductServiceClient(dial)
+	var response *product.FetchReply
+	response, err = client.Fetch(context.TODO(), &product.FetchQuery{Url: args[0]})
+	if err != nil {
+		 return
+	}
+	fmt.Printf("Fetched %d rows\n", response.Size)
+	return
 }
 
 func init() {
