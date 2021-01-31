@@ -6,7 +6,7 @@ import (
 )
 
 func (s Server) Fetch(ctx context.Context, query *FetchQuery) (*FetchReply, error) {
-	log.Printf("FETCH: %v", query)
+	log.Printf("fetch: %v", query)
 	if s.Service == nil {
 		return nil, ErrService
 	}

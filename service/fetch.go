@@ -44,6 +44,7 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 
 	var price float64
 	var count uint32
+	var products []Product
 	for {
 		var record []string
 		record, err = r.Read()
@@ -53,13 +54,14 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 			}
 			return 0, err
 		}
-		var product Product
 		price, err = strconv.ParseFloat(record[1], 64)
 		if err != nil {
 			return 0, err
 		}
-		product.Price = price
-		product.Name = record[0]
+		products = append(products, Product{
+			Name:  record[0],
+			Price: price,
+		})
 		count++
 	}
 

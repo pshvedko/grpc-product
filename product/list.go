@@ -23,7 +23,7 @@ func (q ListQueryService) GetSort() []service.Sort {
 }
 
 func (s Server) List(ctx context.Context, query *ListQuery) (*ListReply, error) {
-	log.Printf("LIST: %v", query)
+	log.Printf("list: %v", query)
 	if s.Service == nil {
 		return nil, ErrService
 	}
