@@ -13,7 +13,7 @@ import (
 )
 
 type Service interface {
-	Fetch(context.Context, service.FetchQuery) (uint32, error)
+	Fetch(context.Context, service.FetchQuery) (uint32, uint32, uint32, error)
 	List(context.Context, service.ListQuery) (service.ListReply, error)
 	service.Starter
 }
