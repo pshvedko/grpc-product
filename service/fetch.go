@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/csv"
 	"errors"
+	"github.com/globalsign/mgo/bson"
 	"io"
 	"net/http"
 	"strconv"
@@ -61,8 +62,15 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 		})
 		count++
 	}
+	type A []interface{}
 	for _, product := range products {
-		err = s.Add(ctx, product)
+		_, err = s.Products().Upsert(bson.M{"name": product.Name},
+			[]bson.M{{"$set": bson.M{
+				"price": product.Price,
+				"date": bson.M{
+					"$cond": A{bson.M{"$ne": A{"$price", product.Price}}, "$$NOW", "$date"}},
+				"changes": bson.M{
+					"$sum": A{bson.M{"$cond": A{bson.M{"$ne": A{"$price", product.Price}}, 1, 0}}, "$changes"}}}}})
 		if err != nil {
 			return 0, err
 		}

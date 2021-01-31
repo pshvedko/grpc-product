@@ -1,11 +1,9 @@
 package service
 
 import (
-	"context"
+	"github.com/pshvedko/grpc-product/storage"
 	"net/http"
 	"time"
-
-	"github.com/pshvedko/grpc-product/storage"
 )
 
 type Browser interface {
@@ -18,8 +16,7 @@ type Starter interface {
 }
 
 type Storage interface {
-	Add(context.Context, storage.Product) error
-	Find(context.Context, storage.Pager, storage.Sorter) (storage.Iterator, error)
+	Products() storage.Table
 	Starter
 }
 

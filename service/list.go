@@ -3,17 +3,20 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"github.com/pshvedko/grpc-product/storage"
 	"time"
 )
 
 type ListQuery interface {
-	storage.Pager
-	storage.Sorter
+	GetLimit() uint32
+	GetOffset() uint32
+	ForSort(func(string, bool))
 }
 
 type ListReply interface {
-	storage.Iterator
+	Next(interface{}) bool
+	Close() error
+	Done() bool
+	Err() error
 }
 
 type iter struct {
@@ -56,7 +59,7 @@ func (i *iter) Next(o interface{}) bool {
 }
 
 func (s Service) List(ctx context.Context, query ListQuery) (ListReply, error) {
-	_, _ = s.Find(ctx, query, query)
+	//	_, _ = s.Find(ctx, query, query)
 	return &iter{items: []Product{
 		{
 			Name:    "1",
