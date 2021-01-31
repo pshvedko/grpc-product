@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pshvedko/grpc-product/storage"
 	"net"
 	"net/http"
 
@@ -26,9 +27,10 @@ func runServe(cmd *cobra.Command, args []string) (err error) {
 		return
 	}
 	defer listener.Close()
-	api := product.Server{
+	api := &product.Server{
 		Service: &service.Service{
 			Browser: &http.Client{},
+			Storage: &storage.Mongo{},
 		},
 	}
 	server := grpc.NewServer()

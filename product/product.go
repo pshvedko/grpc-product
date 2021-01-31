@@ -25,6 +25,20 @@ var (
 	ErrService = status.Error(codes.Internal, "service is not defined")
 )
 
+func (x *ListQuery) GetLimit() uint32 {
+	return x.Page.Limit
+}
+
+func (x *ListQuery) GetOffset() uint32 {
+	return x.Page.Offset
+}
+
+func (x *ListQuery) ForSort(f func(string, bool)) {
+	for _, v := range x.Sort {
+		f(v.By, v.Order)
+	}
+}
+
 func (x *Product) UnmarshalJSON(data []byte) (err error) {
 	var v service.Product
 	price := strconv.FormatFloat(v.Price, 'f', -1, 64)

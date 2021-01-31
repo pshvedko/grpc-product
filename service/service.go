@@ -1,15 +1,21 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"time"
+
+	"github.com/pshvedko/grpc-product/storage"
 )
 
 type Browser interface {
-	Do(req *http.Request) (*http.Response, error)
+	Do(*http.Request) (*http.Response, error)
 }
 
-type Storage interface{}
+type Storage interface {
+	Add(context.Context, storage.Product) error
+	Find(context.Context, storage.Pager, storage.Sorter) (storage.Iterator, error)
+}
 
 type Service struct {
 	Browser

@@ -65,5 +65,12 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, error) {
 		count++
 	}
 
+	for _, product := range products {
+		err = s.Add(ctx, product)
+		if err != nil {
+			return 0, err
+		}
+	}
+
 	return count, nil
 }
