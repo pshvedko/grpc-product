@@ -65,9 +65,30 @@ func (t Table) Upsert(selector, update interface{}) (*mgo.ChangeInfo, error) {
 	return t.c.Upsert(selector, update)
 }
 
-func (t Table) Cursor(selector, field interface{}, limit, offset uint32, sort []string) *mgo.Iter {
-	defer t.Release()
-	return t.c.Find(selector).Select(field).Sort(sort...).Limit(int(limit)).Skip(int(offset)).Iter()
+type Cursor struct {
+	t *Table
+	i *mgo.Iter
+}
+
+func (c Cursor) Next(v interface{}) bool {
+	return c.i.Next(v)
+}
+
+func (c Cursor) Close() error {
+	defer c.t.Release()
+	return c.i.Close()
+}
+
+func (c Cursor) Done() bool {
+	return c.i.Done()
+}
+
+func (c Cursor) Err() error {
+	return c.i.Err()
+}
+
+func (t Table) Cursor(selector, field interface{}, limit, offset uint32, sort []string) Cursor {
+	return Cursor{&t, t.c.Find(selector).Select(field).Sort(sort...).Limit(int(limit)).Skip(int(offset)).Iter()}
 }
 
 func (s *Storage) Products() Table {
