@@ -10,7 +10,7 @@ import (
 	"github.com/globalsign/mgo"
 )
 
-const defaultMigrations = "migrations"
+const defaultMigrationCollection = "migrations"
 
 type Migration struct {
 	Id      int `bson:"_id"`
@@ -24,14 +24,14 @@ func (m Migration) Up(db *mgo.Database) (err error) {
 	if err = m.up(db); err != nil {
 		return
 	}
-	return db.C(defaultMigrations).Insert(m)
+	return db.C(defaultMigrationCollection).Insert(m)
 }
 
 func (m Migration) Down(db *mgo.Database) (err error) {
 	if err = m.down(db); err != nil {
 		return
 	}
-	return db.C(defaultMigrations).RemoveId(m.Id)
+	return db.C(defaultMigrationCollection).RemoveId(m.Id)
 }
 
 type MigrationFunc func(db *mgo.Database) error
@@ -65,7 +65,7 @@ func migrate(db *mgo.Database) (patch int, err error) {
 }
 
 func up(db *mgo.Database, to int) (patch int, err error) {
-	patch, err = db.C(defaultMigrations).Count()
+	patch, err = db.C(defaultMigrationCollection).Count()
 	if err != nil {
 		return
 	}

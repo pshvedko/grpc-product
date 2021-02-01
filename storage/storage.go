@@ -16,8 +16,9 @@ type Storage struct {
 }
 
 const (
-	defaultPoolSize = 16
-	defaultDataBase = "foo"
+	defaultPoolSize          = 16
+	defaultDataBase          = "foo"
+	defaultProductCollection = "products"
 )
 
 func (s *Storage) Start() (err error) {
@@ -92,7 +93,7 @@ func (t Table) Cursor(selector, field interface{}, limit, offset uint32, sort []
 }
 
 func (s *Storage) Products() Table {
-	return s.Table("products")
+	return s.Table(defaultProductCollection)
 }
 
 func (s *Storage) Table(name string) Table {
