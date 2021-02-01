@@ -18,7 +18,7 @@ type Service interface {
 	service.Starter
 }
 
-type API struct {
+type Application struct {
 	Service
 }
 

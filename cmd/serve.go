@@ -27,7 +27,7 @@ func runServe(*cobra.Command, []string) (err error) {
 		return
 	}
 	defer listener.Close()
-	api := &product.API{
+	api := &product.Application{
 		Service: &service.Service{
 			Browser: &http.Client{},
 			Storage: &storage.Storage{

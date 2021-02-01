@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func (s API) Fetch(ctx context.Context, query *FetchQuery) (*FetchReply, error) {
+func (s Application) Fetch(ctx context.Context, query *FetchQuery) (*FetchReply, error) {
 	if s.Service == nil {
 		return nil, ErrService
 	}
