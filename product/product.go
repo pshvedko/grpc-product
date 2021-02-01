@@ -5,11 +5,12 @@ package product
 import (
 	"context"
 	"encoding/json"
+	"github.com/globalsign/mgo/bson"
 	"github.com/pshvedko/grpc-product/service"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
+	"strconv"
 )
 
 type Service interface {
@@ -40,23 +41,60 @@ func (x *ListQuery) ForSort(f func(string, bool)) {
 	}
 }
 
-type product struct {
-	x    interface{}
-	Date time.Time `json:"date"`
+func NewSort(field string) *Sort {
+	var minus bool
+	switch field[0] {
+	case '-':
+		minus = true
+		fallthrough
+	case '+':
+		field = field[1:]
+	}
+	return &Sort{
+		Order: minus,
+		By:    field,
+	}
+}
+
+func (x *Product) set(v service.Product) {
+	x.Name = v.Name
+	x.Price = strconv.FormatFloat(v.Price, 'f', -1, 64)
+	x.Changes = v.Changes
+	x.Date = timestamppb.New(v.Date)
+}
+
+func (x *Product) get() service.Product {
+	price, _ := strconv.ParseFloat(x.Price, 64)
+	return service.Product{
+		Name:    x.Name,
+		Price:   price,
+		Changes: x.Changes,
+		Date:    x.Date.AsTime(),
+	}
 }
 
 func (x *Product) UnmarshalJSON(data []byte) (err error) {
-	v := product{x: x}
+	var v service.Product
 	err = json.Unmarshal(data, &v)
 	if err == nil {
-		x.Date = timestamppb.New(v.Date)
+		x.set(v)
 	}
 	return
 }
 
 func (x *Product) MarshalJSON() ([]byte, error) {
-	return json.Marshal(product{
-		x:    x,
-		Date: x.Date.AsTime(),
-	})
+	return json.Marshal(x.get())
+}
+
+func (x *Product) SetBSON(raw bson.Raw) (err error) {
+	var v service.Product
+	err = raw.Unmarshal(&v)
+	if err == nil {
+		x.set(v)
+	}
+	return
+}
+
+func (x *Product) GetBSON() (interface{}, error) {
+	return x.get(), nil
 }
