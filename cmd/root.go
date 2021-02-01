@@ -31,8 +31,12 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 	} else if !serverFlag {
 		return cmd.Usage()
 	}
+	addr := net.TCPAddr{
+		IP:   addrFlag,
+		Port: portFlag,
+	}
 	var listener net.Listener
-	listener, err = net.ListenTCP("tcp", &net.TCPAddr{IP: addrFlag, Port: portFlag})
+	listener, err = net.ListenTCP("tcp", &addr)
 	if err != nil {
 		return
 	}
