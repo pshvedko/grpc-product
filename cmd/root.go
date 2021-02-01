@@ -40,7 +40,7 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 			Browser: &http.Client{},
 			Storage: &storage.Storage{
 				Mongo: &storage.Mongo{
-					Addrs:     []string{"192.168.0.244:27017"},
+					Addrs:     []string{"mongo:27017"},
 					Database:  "foo",
 					Username:  "",
 					Password:  "",
@@ -50,7 +50,7 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 		},
 		Id: nodeFlag,
 	}
-	err = api.Start()
+	err = api.Start(api.Id)
 	if err != nil {
 		return
 	}

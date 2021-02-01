@@ -60,7 +60,10 @@ func Register(up, down MigrationFunc) {
 	order++
 }
 
-func migrate(db *mgo.Database) (patch int, err error) {
+func migrate(db *mgo.Database, id uint32) (patch int, err error) {
+	if id > 0 {
+		return
+	}
 	return up(db, order)
 }
 

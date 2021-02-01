@@ -11,7 +11,7 @@ type Browser interface {
 }
 
 type Starter interface {
-	Start() error
+	Start(uint32) error
 	Stop()
 }
 

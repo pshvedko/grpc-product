@@ -21,7 +21,7 @@ const (
 	defaultProductCollection = "products"
 )
 
-func (s *Storage) Start() (err error) {
+func (s *Storage) Start(id uint32) (err error) {
 	if s.PoolLimit == 0 {
 		s.PoolLimit = defaultPoolSize
 	}
@@ -33,7 +33,7 @@ func (s *Storage) Start() (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = migrate(session.DB(""))
+	_, err = migrate(session.DB(""), id)
 	if err != nil {
 		session.Close()
 		return err
