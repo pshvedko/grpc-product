@@ -14,5 +14,5 @@ func (s Application) Fetch(ctx context.Context, query *FetchQuery) (*FetchReply,
 	if err != nil {
 		return nil, err
 	}
-	return &FetchReply{Fetched: loaded, Created: added, Updated: changed}, nil
+	return &FetchReply{Fetched: loaded, Created: added, Updated: changed, Node: s.Id}, nil
 }

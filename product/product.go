@@ -20,6 +20,7 @@ type Service interface {
 
 type Application struct {
 	Service
+	Id uint32
 }
 
 var (

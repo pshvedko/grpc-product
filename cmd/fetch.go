@@ -38,7 +38,7 @@ func runFetch(_ *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return
 	}
-	fmt.Printf("Fetched %d, created %d, updated %d rows\n", reply.Fetched, reply.Created, reply.Updated)
+	fmt.Printf("Node %d, fetched %d, created %d, updated %d rows\n", reply.Node, reply.Fetched, reply.Created, reply.Updated)
 	return
 }
 

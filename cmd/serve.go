@@ -2,13 +2,16 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/pshvedko/grpc-product/storage"
+	"math/rand"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/pshvedko/grpc-product/product"
 	"github.com/pshvedko/grpc-product/service"
+	"github.com/pshvedko/grpc-product/storage"
 	"github.com/spf13/cobra"
+
 	"google.golang.org/grpc"
 )
 
@@ -40,6 +43,7 @@ func runServe(*cobra.Command, []string) (err error) {
 				},
 			},
 		},
+		Id: nodeFlag,
 	}
 	err = api.Start()
 	if err != nil {
@@ -52,6 +56,11 @@ func runServe(*cobra.Command, []string) (err error) {
 	return
 }
 
+var nodeFlag uint32
+
 func init() {
+	n := time.Now().UnixNano()
+	r := rand.NewSource(n)
+	serveCmd.Flags().Uint32VarP(&nodeFlag, "node", "n", rand.New(r).Uint32() % 10, "node id")
 	rootCmd.AddCommand(serveCmd)
 }

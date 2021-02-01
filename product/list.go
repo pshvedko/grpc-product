@@ -26,5 +26,5 @@ func (s Application) List(ctx context.Context, query *ListQuery) (*ListReply, er
 		}
 		products = append(products, &row)
 	}
-	return &ListReply{Products: products}, nil
+	return &ListReply{Products: products, Node: s.Id}, nil
 }

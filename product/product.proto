@@ -14,6 +14,7 @@ message FetchReply {
   uint32 fetched = 1;
   uint32 created = 2;
   uint32 updated = 3;
+  uint32 node = 4;
 }
 
 message Page {
@@ -40,6 +41,7 @@ message Product {
 
 message ListReply {
   repeated Product products = 1;
+  uint32 node = 2;
 }
 
 service ProductService {
