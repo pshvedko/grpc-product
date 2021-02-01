@@ -20,11 +20,12 @@ var (
 	ErrStatus = errors.New("can't load file")
 )
 
-func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, uint32, uint32, error) {
+func (s Service) Fetch(ctx context.Context, query FetchQuery) (loaded, changed, added uint32, err error) {
 	if query == nil {
 		return 0, 0, 0, ErrQuery
 	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, query.GetUrl(), nil)
+	var request *http.Request
+	request, err = http.NewRequestWithContext(ctx, http.MethodGet, query.GetUrl(), nil)
 	var response *http.Response
 	response, err = s.Do(request)
 	if err != nil {
@@ -42,11 +43,9 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, uint32, u
 	r.ReuseRecord = true
 	r.LazyQuotes = true
 	var price float64
-	var changed uint32
-	var loaded uint32
-	var added uint32
 	var info *mgo.ChangeInfo
 	type A []interface{}
+	first := true
 	for {
 		var record []string
 		record, err = r.Read()
@@ -55,6 +54,10 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, uint32, u
 				err = nil
 			}
 			break
+		}
+		if first {
+			first = false
+			continue
 		}
 		price, err = strconv.ParseFloat(record[1], 64)
 		if err != nil {
@@ -78,5 +81,5 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (uint32, uint32, u
 		}
 		loaded++
 	}
-	return loaded, changed, added, err
+	return
 }
