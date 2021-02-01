@@ -6,6 +6,7 @@ import (
 	"github.com/pshvedko/grpc-product/product"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
+	"net"
 	"net/url"
 )
 
@@ -26,8 +27,12 @@ func runFetch(_ *cobra.Command, args []string) (err error) {
 	if u.Scheme == "" || u.Host == "" {
 		return fmt.Errorf("invalid url, please specify as 'http://host/file.csv'")
 	}
+	addr := net.TCPAddr{
+		IP:   addrFlag,
+		Port: portFlag,
+	}
 	var dial *grpc.ClientConn
-	dial, err = grpc.Dial(fmt.Sprintf(":%v", portFlag), grpc.WithInsecure())
+	dial, err = grpc.Dial(addr.String(), grpc.WithInsecure())
 	if err != nil {
 		return
 	}
@@ -38,7 +43,11 @@ func runFetch(_ *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return
 	}
-	fmt.Printf("Node %d, fetched %d, created %d, updated %d rows\n", reply.Node, reply.Fetched, reply.Created, reply.Updated)
+	fmt.Printf("Node %d, fetched %d, created %d, updated %d rows\n",
+		reply.Node,
+		reply.Fetched,
+		reply.Created,
+		reply.Updated)
 	return
 }
 
