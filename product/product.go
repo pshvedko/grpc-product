@@ -35,10 +35,15 @@ func (x *ListQuery) GetOffset() uint32 {
 	return x.Page.Offset
 }
 
-func (x *ListQuery) ForSort(f func(string, bool)) {
+func (x *ListQuery) GetSortField() (fields []string) {
 	for _, v := range x.Sort {
-		f(v.By, v.Order)
+		var minus string
+		if v.Order {
+			minus = "-"
+		}
+		fields = append(fields, minus+v.By)
 	}
+	return
 }
 
 func NewSort(field string) *Sort {

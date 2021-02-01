@@ -6,11 +6,11 @@ import (
 )
 
 func (s API) List(ctx context.Context, query *ListQuery) (*ListReply, error) {
-	log.Printf("list: %v", query)
 	if s.Service == nil {
 		return nil, ErrService
 	}
 	rows, err := s.Service.List(ctx, query)
+	log.Printf("list: %v %v", query, err)
 	if err != nil {
 		return nil, err
 	}

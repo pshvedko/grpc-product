@@ -10,9 +10,9 @@ func (s API) Fetch(ctx context.Context, query *FetchQuery) (*FetchReply, error) 
 		return nil, ErrService
 	}
 	loaded, changed, added, err := s.Service.Fetch(ctx, query)
+	log.Printf("fetch: %v %v %v %v %v", query, loaded, changed, added, err)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("fetch: %v %v %v %v", query, loaded, changed, added)
 	return &FetchReply{Size: loaded}, nil
 }

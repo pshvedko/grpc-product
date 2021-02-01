@@ -60,9 +60,14 @@ func (t Table) Release() {
 	t.s.sessions <- t.c.Database.Session
 }
 
-func (t Table) Upsert(selector interface{}, update interface{}) (*mgo.ChangeInfo, error) {
+func (t Table) Upsert(selector, update interface{}) (*mgo.ChangeInfo, error) {
 	defer t.Release()
 	return t.c.Upsert(selector, update)
+}
+
+func (t Table) Cursor(selector, field interface{}, limit, offset uint32, sort []string) *mgo.Iter {
+	defer t.Release()
+	return t.c.Find(selector).Select(field).Sort(sort...).Limit(int(limit)).Skip(int(offset)).Iter()
 }
 
 func (s *Storage) Products() Table {

@@ -33,12 +33,12 @@ func runFetch(_ *cobra.Command, args []string) (err error) {
 	}
 	defer dial.Close()
 	client := product.NewProductServiceClient(dial)
-	var response *product.FetchReply
-	response, err = client.Fetch(context.TODO(), &product.FetchQuery{Url: args[0]})
+	var reply *product.FetchReply
+	reply, err = client.Fetch(context.TODO(), &product.FetchQuery{Url: args[0]})
 	if err != nil {
 		return
 	}
-	fmt.Printf("Fetched %d rows\n", response.Size)
+	fmt.Printf("Fetched %d rows\n", reply.Size)
 	return
 }
 
