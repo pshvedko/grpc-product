@@ -11,7 +11,9 @@ message FetchQuery {
 }
 
 message FetchReply {
-  uint32 size = 1;
+  uint32 fetched = 1;
+  uint32 created = 2;
+  uint32 updated = 3;
 }
 
 message Page {
