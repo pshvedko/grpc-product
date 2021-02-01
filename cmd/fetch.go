@@ -3,11 +3,11 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net/url"
+
 	"github.com/pshvedko/grpc-product/product"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
-	"net"
-	"net/url"
 )
 
 var fetchCmd = &cobra.Command{
@@ -25,14 +25,10 @@ func runFetch(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 	if u.Scheme == "" || u.Host == "" {
-		return fmt.Errorf("invalid url, please specify as 'http://host/file.csv'")
-	}
-	addr := net.TCPAddr{
-		IP:   addrFlag,
-		Port: portFlag,
+		return fmt.Errorf("invalid url: please specify as 'http://host/file.csv'")
 	}
 	var dial *grpc.ClientConn
-	dial, err = grpc.Dial(addr.String(), grpc.WithInsecure())
+	dial, err = grpc.Dial(addrFlag.String(), grpc.WithInsecure())
 	if err != nil {
 		return
 	}

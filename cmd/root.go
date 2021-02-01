@@ -2,21 +2,19 @@ package cmd
 
 import (
 	"fmt"
+	"net"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/pshvedko/grpc-product/product"
 	"github.com/pshvedko/grpc-product/service"
 	"github.com/pshvedko/grpc-product/storage"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
-	"net"
-	"net/http"
-	"os"
-	"path/filepath"
 )
 
 import _ "github.com/pshvedko/grpc-product/migrate"
-
-var portFlag int
-var addrFlag net.IP
 
 var rootCmd = &cobra.Command{
 	Use:           filepath.Base(os.Args[0]),
@@ -31,12 +29,8 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 	} else if !serverFlag {
 		return cmd.Usage()
 	}
-	addr := net.TCPAddr{
-		IP:   addrFlag,
-		Port: portFlag,
-	}
 	var listener net.Listener
-	listener, err = net.ListenTCP("tcp", &addr)
+	listener, err = net.ListenTCP("tcp", &addrFlag)
 	if err != nil {
 		return
 	}
@@ -74,12 +68,13 @@ func Execute() {
 	}
 }
 
+var addrFlag net.TCPAddr
 var serverFlag bool
 var nodeFlag uint32
 
 func init() {
 	rootCmd.Flags().BoolVarP(&serverFlag, "", "s", false, "run in service mode")
 	rootCmd.Flags().Uint32VarP(&nodeFlag, "node", "n", 0, "node id used with -s")
-	rootCmd.PersistentFlags().IntVarP(&portFlag, "port", "p", 9000, "port to listen")
-	rootCmd.PersistentFlags().IPVarP(&addrFlag, "addr", "a", net.IP{0, 0, 0, 0}, "address to bind")
+	rootCmd.PersistentFlags().IntVarP(&addrFlag.Port, "port", "p", 9000, "port to listen")
+	rootCmd.PersistentFlags().IPVarP(&addrFlag.IP, "addr", "a", net.IP{0, 0, 0, 0}, "address to bind")
 }

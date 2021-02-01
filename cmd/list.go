@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"net"
 	"os"
 
 	"github.com/pshvedko/grpc-product/product"
@@ -19,12 +18,8 @@ var listCmd = &cobra.Command{
 }
 
 func runList(*cobra.Command, []string) (err error) {
-	addr := net.TCPAddr{
-		IP:   addrFlag,
-		Port: portFlag,
-	}
 	var dial *grpc.ClientConn
-	dial, err = grpc.Dial(addr.String(), grpc.WithInsecure())
+	dial, err = grpc.Dial(addrFlag.String(), grpc.WithInsecure())
 	if err != nil {
 		return
 	}
