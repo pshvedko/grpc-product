@@ -17,4 +17,5 @@
 
 *.sum
 *.pb.go
+mock
 grpc-product

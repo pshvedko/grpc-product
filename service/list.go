@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/pshvedko/grpc-product/storage"
 )
 
 type ListQuery interface {
@@ -11,10 +12,7 @@ type ListQuery interface {
 }
 
 type ListReply interface {
-	Next(interface{}) bool
-	Close() error
-	Done() bool
-	Err() error
+	storage.Cursor
 }
 
 func (s Service) List(_ context.Context, query ListQuery) (ListReply, error) {

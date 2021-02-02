@@ -52,44 +52,57 @@ func (s *Storage) Stop() {
 	}
 }
 
-type Table struct {
+type Table interface {
+	Release()
+	Upsert(selector, update interface{}) (*mgo.ChangeInfo, error)
+	Cursor(selector, field interface{}, limit, offset uint32, sort []string) Cursor
+}
+
+type table struct {
 	s *Storage
 	c *mgo.Collection
 }
 
-func (t Table) Release() {
+func (t table) Release() {
 	t.s.sessions <- t.c.Database.Session
 }
 
-func (t Table) Upsert(selector, update interface{}) (*mgo.ChangeInfo, error) {
+func (t table) Upsert(selector, update interface{}) (*mgo.ChangeInfo, error) {
 	defer t.Release()
 	return t.c.Upsert(selector, update)
 }
 
-type Cursor struct {
-	t *Table
+type cursor struct {
+	t *table
 	i *mgo.Iter
 }
 
-func (c Cursor) Next(v interface{}) bool {
+func (c cursor) Next(v interface{}) bool {
 	return c.i.Next(v)
 }
 
-func (c Cursor) Close() error {
+func (c cursor) Close() error {
 	defer c.t.Release()
 	return c.i.Close()
 }
 
-func (c Cursor) Done() bool {
+func (c cursor) Done() bool {
 	return c.i.Done()
 }
 
-func (c Cursor) Err() error {
+func (c cursor) Err() error {
 	return c.i.Err()
 }
 
-func (t Table) Cursor(selector, field interface{}, limit, offset uint32, sort []string) Cursor {
-	return Cursor{&t, t.c.Find(selector).Select(field).Sort(sort...).Limit(int(limit)).Skip(int(offset)).Iter()}
+type Cursor interface {
+	Next(interface{}) bool
+	Close() error
+	Done() bool
+	Err() error
+}
+
+func (t table) Cursor(selector, field interface{}, limit, offset uint32, sort []string) Cursor {
+	return cursor{&t, t.c.Find(selector).Select(field).Sort(sort...).Limit(int(limit)).Skip(int(offset)).Iter()}
 }
 
 func (s *Storage) Products() Table {
@@ -97,7 +110,7 @@ func (s *Storage) Products() Table {
 }
 
 func (s *Storage) Table(name string) Table {
-	return Table{s, s.Acquire().DB("").C(name)}
+	return table{s, s.Acquire().DB("").C(name)}
 }
 
 func (s *Storage) Acquire() *mgo.Session {
