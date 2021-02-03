@@ -24,6 +24,10 @@ type Application struct {
 	Id uint32
 }
 
+func (s Application) Start() error {
+	return s.Service.Start(s.Id)
+}
+
 func (s Application) mustEmbedUnimplementedProductServiceServer() {}
 
 var (

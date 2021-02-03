@@ -50,7 +50,7 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 		},
 		Id: nodeFlag,
 	}
-	err = api.Start(api.Id)
+	err = api.Start()
 	if err != nil {
 		return
 	}

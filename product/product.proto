@@ -47,5 +47,6 @@ message ListReply {
 service ProductService {
   rpc Fetch(FetchQuery) returns (FetchReply) {}
   rpc List(ListQuery) returns (ListReply) {}
+  rpc ListStream(stream ListQuery) returns (stream Product) {}
 }
 
