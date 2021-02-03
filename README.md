@@ -1,4 +1,4 @@
-# grpc-product
+# grpc-product-demo
 MongoDB based gRPC service that provides Fetch and List methods
 
 ## Installation
@@ -18,11 +18,13 @@ docker-compose up
 Build client locally
 ```
 apt-get update
-apt-get install -y protobuf-compiler
+apt-get install protobuf-compiler
 go get google.golang.org/protobuf/cmd/protoc-gen-go
 go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
 go get github.com/golang/mock/gomock
 go get github.com/golang/mock/mockgen
+export PATH=$GOPATH/bin:$PATH
+go generate ./...
 go build
 ```
 
