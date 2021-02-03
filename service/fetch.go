@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/csv"
 	"errors"
-	"github.com/globalsign/mgo"
-	"github.com/globalsign/mgo/bson"
 	"io"
 	"net/http"
 	"strconv"
@@ -42,9 +40,8 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (loaded, changed, 
 	r.TrimLeadingSpace = true
 	r.ReuseRecord = true
 	r.LazyQuotes = true
+	var push int
 	var price float64
-	var info *mgo.ChangeInfo
-	type A []interface{}
 	first := true
 	for {
 		var record []string
@@ -63,17 +60,11 @@ func (s Service) Fetch(ctx context.Context, query FetchQuery) (loaded, changed, 
 		if err != nil {
 			break
 		}
-		info, err = s.Products().Upsert(bson.M{"name": record[0]},
-			[]bson.M{{"$set": bson.M{
-				"date": bson.M{
-					"$cond": A{bson.M{"$ne": A{"$price", price}}, "$$NOW", "$date"}},
-				"changes": bson.M{
-					"$sum": A{bson.M{"$cond": A{bson.M{"$ne": A{"$price", price}}, 1, 0}}, "$changes"}},
-				"price": price}}})
+		push, err = s.Products().Push(record[0], price)
 		if err != nil {
 			break
 		}
-		switch info.Matched + info.Updated {
+		switch push {
 		case 0:
 			added++
 		case 2:

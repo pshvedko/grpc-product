@@ -5,28 +5,66 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	service "github.com/pshvedko/grpc-product/service/mock"
 )
 
-type query string
-
-func (q query) GetUrl() string {
-	return string(q)
+type query struct {
+	url string
 }
 
-type body [][]string
+func (q query) GetUrl() string {
+	return q.url
+}
 
-func (b body) Read(p []byte) (n int, err error) {
+type body struct {
+	csv [][]string
+	row int
+	col int
+	pos int
+	end bool
+}
+
+func (b *body) Read(p []byte) (int, error) {
+	if b.end {
+		return 0, os.ErrClosed
+	} else if len(p) == 0 {
+		return 0, nil
+	}
+	for _, r := range b.csv[b.row:] {
+		n := len(r)
+		for _, c := range r[b.col:] {
+			w := c[b.pos:]
+			if len(w) == 0 {
+				b.col++
+				b.pos = -1
+				if b.col < n {
+					w = ";"
+				} else {
+					w = "\n"
+				}
+			}
+			copy(p, w[:1])
+			b.pos++
+			fmt.Print(w[:1])
+			return 1, nil
+		}
+		b.row++
+		b.col = 0
+	}
+
 	return 0, io.EOF
 }
 
-func (b body) Close() error {
+func (b *body) Close() error {
+	b.end = true
 	return nil
 }
 
@@ -73,7 +111,17 @@ func TestService_Fetch(t *testing.T) {
 					r = r.WithContext(ctx)
 					m.EXPECT().Do(gomock.Eq(r)).Return(&http.Response{
 						StatusCode: 200,
-						Body:       body{},
+						Body: &body{
+							csv: [][]string{
+								{"PRODUCT NAME", "PRICE"},
+								{"USD", "75.905"},
+								{"EUR", "91.625"},
+								{"CNY", "11.749"},
+								{"RUR", "1"},
+								{"RUR", "1"},
+								{"RUR", "1"},
+							},
+						},
 					}, nil)
 					return m
 				}(),
@@ -85,10 +133,10 @@ func TestService_Fetch(t *testing.T) {
 			},
 			args: args{
 				ctx:   ctx,
-				query: query("http://localhost/"),
+				query: query{url: "http://localhost/"},
 			},
-			wantLoaded:  0,
 			wantChanged: 0,
+			wantLoaded:  0,
 			wantAdded:   0,
 			wantErr:     false,
 		},

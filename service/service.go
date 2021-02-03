@@ -16,7 +16,7 @@ type Starter interface {
 }
 
 type Storage interface {
-	Products() storage.Table
+	Products() storage.Products
 	Starter
 }
 

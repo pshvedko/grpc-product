@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 )
 
 type Mongo mgo.DialInfo
@@ -48,28 +49,17 @@ func (s *Storage) Start(id uint32) (err error) {
 
 func (s *Storage) Stop() {
 	for i := 0; i < s.PoolLimit; i++ {
-		s.Acquire().Close()
+		s.acquire().Close()
 	}
 }
 
 type Table interface {
-	Release()
-	Upsert(selector, update interface{}) (*mgo.ChangeInfo, error)
-	Cursor(selector, field interface{}, limit, offset uint32, sort []string) Cursor
+	List(limit, offset uint32, sort []string) Cursor
 }
 
-type table struct {
-	s *Storage
-	c *mgo.Collection
-}
-
-func (t table) Release() {
-	t.s.sessions <- t.c.Database.Session
-}
-
-func (t table) Upsert(selector, update interface{}) (*mgo.ChangeInfo, error) {
-	defer t.Release()
-	return t.c.Upsert(selector, update)
+type Products interface {
+	Push(string, float64) (int, error)
+	Table
 }
 
 type cursor struct {
@@ -82,7 +72,7 @@ func (c cursor) Next(v interface{}) bool {
 }
 
 func (c cursor) Close() error {
-	defer c.t.Release()
+	defer c.t.release()
 	return c.i.Close()
 }
 
@@ -101,18 +91,44 @@ type Cursor interface {
 	Err() error
 }
 
-func (t table) Cursor(selector, field interface{}, limit, offset uint32, sort []string) Cursor {
-	return cursor{&t, t.c.Find(selector).Select(field).Sort(sort...).Limit(int(limit)).Skip(int(offset)).Iter()}
+func (s *Storage) Products() Products {
+	return products{table{s, s.acquire().DB("").C(defaultProductCollection)}}
 }
 
-func (s *Storage) Products() Table {
-	return s.Table(defaultProductCollection)
-}
-
-func (s *Storage) Table(name string) Table {
-	return table{s, s.Acquire().DB("").C(name)}
-}
-
-func (s *Storage) Acquire() *mgo.Session {
+func (s *Storage) acquire() *mgo.Session {
 	return <-s.sessions
+}
+
+type A []interface{}
+
+type table struct {
+	s *Storage
+	c *mgo.Collection
+}
+
+func (t table) release() {
+	t.s.sessions <- t.c.Database.Session
+}
+
+func (t table) List(limit, offset uint32, sort []string) Cursor {
+	return cursor{&t, t.c.Find(nil).Select(nil).Sort(sort...).Limit(int(limit)).Skip(int(offset)).Iter()}
+}
+
+type products struct {
+	table
+}
+
+func (p products) Push(name string, price float64) (int, error) {
+	defer p.release()
+	info, err := p.c.Upsert(bson.M{"name": name},
+		[]bson.M{{"$set": bson.M{
+			"date": bson.M{
+				"$cond": A{bson.M{"$ne": A{"$price", price}}, "$$NOW", "$date"}},
+			"changes": bson.M{
+				"$sum": A{bson.M{"$cond": A{bson.M{"$ne": A{"$price", price}}, 1, 0}}, "$changes"}},
+			"price": price}}})
+	if err != nil {
+		return 0, err
+	}
+	return info.Updated + info.Matched, nil
 }
