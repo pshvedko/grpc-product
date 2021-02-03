@@ -1,6 +1,7 @@
 package product
 
-//go:generate protoc -I . --go_out=plugins=grpc:. product.proto
+//go:generate protoc -I . --go-grpc_out=. product.proto
+//go:generate protoc -I . --go_out=. product.proto
 
 import (
 	"context"
@@ -23,20 +24,22 @@ type Application struct {
 	Id uint32
 }
 
+func (s Application) mustEmbedUnimplementedProductServiceServer() {}
+
 var (
 	ErrService = status.Error(codes.Internal, "service is not defined")
 )
 
-func (m *ListQuery) GetLimit() uint32 {
-	return m.Page.Limit
+func (x *ListQuery) GetLimit() uint32 {
+	return x.Page.Limit
 }
 
-func (m *ListQuery) GetOffset() uint32 {
-	return m.Page.Offset
+func (x *ListQuery) GetOffset() uint32 {
+	return x.Page.Offset
 }
 
-func (m *ListQuery) GetSortField() (fields []string) {
-	for _, v := range m.Sort {
+func (x *ListQuery) GetSortField() (fields []string) {
+	for _, v := range x.Sort {
 		var minus string
 		if v.Order {
 			minus = "-"
@@ -61,44 +64,44 @@ func NewSort(field string) *Sort {
 	}
 }
 
-func (m *Product) set(v service.Product) {
-	m.Name = v.Name
-	m.Price = v.Price
-	m.Changes = v.Changes
-	m.Date = timestamppb.New(v.Date)
+func (x *Product) set(v service.Product) {
+	x.Name = v.Name
+	x.Price = v.Price
+	x.Changes = v.Changes
+	x.Date = timestamppb.New(v.Date)
 }
 
-func (m *Product) get() service.Product {
+func (x *Product) get() service.Product {
 	return service.Product{
-		Name:    m.Name,
-		Price:   m.Price,
-		Changes: m.Changes,
-		Date:    m.Date.AsTime(),
+		Name:    x.Name,
+		Price:   x.Price,
+		Changes: x.Changes,
+		Date:    x.Date.AsTime(),
 	}
 }
 
-func (m *Product) UnmarshalJSON(data []byte) (err error) {
+func (x *Product) UnmarshalJSON(data []byte) (err error) {
 	var v service.Product
 	err = json.Unmarshal(data, &v)
 	if err == nil {
-		m.set(v)
+		x.set(v)
 	}
 	return
 }
 
-func (m *Product) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.get())
+func (x *Product) MarshalJSON() ([]byte, error) {
+	return json.Marshal(x.get())
 }
 
-func (m *Product) SetBSON(raw bson.Raw) (err error) {
+func (x *Product) SetBSON(raw bson.Raw) (err error) {
 	var v service.Product
 	err = raw.Unmarshal(&v)
 	if err == nil {
-		m.set(v)
+		x.set(v)
 	}
 	return
 }
 
-func (m *Product) GetBSON() (interface{}, error) {
-	return m.get(), nil
+func (x *Product) GetBSON() (interface{}, error) {
+	return x.get(), nil
 }
