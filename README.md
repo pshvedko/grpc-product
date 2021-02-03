@@ -1,4 +1,4 @@
-# grpc-product
+# grpc-product-demo
 MongoDB based gRPC service that provides Fetch and List methods
 
 ## Installation
