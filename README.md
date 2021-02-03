@@ -23,6 +23,7 @@ go get google.golang.org/protobuf/cmd/protoc-gen-go
 go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
 go get github.com/golang/mock/gomock
 go get github.com/golang/mock/mockgen
+export PATH=$GOPATH/bin:$PATH
 go generate ./...
 go build
 ```
