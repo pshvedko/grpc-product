@@ -1,11 +1,7 @@
 package service
 
-//go:generate mockgen --destination=mock/browser.go . Browser
-//go:generate mockgen --destination=mock/storage.go . Storage
-
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -13,7 +9,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	service "github.com/pshvedko/grpc-product/service/mock"
+	mockService "github.com/pshvedko/grpc-product/service/mock"
+	mockStorage "github.com/pshvedko/grpc-product/storage/mock"
 )
 
 type query struct {
@@ -53,13 +50,11 @@ func (b *body) Read(p []byte) (int, error) {
 			}
 			copy(p, w[:1])
 			b.pos++
-			fmt.Print(w[:1])
 			return 1, nil
 		}
 		b.row++
 		b.col = 0
 	}
-
 	return 0, io.EOF
 }
 
@@ -94,7 +89,7 @@ func TestService_Fetch(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				Browser: func() Browser {
-					m := service.NewMockBrowser(ctrl)
+					m := mockService.NewMockBrowser(ctrl)
 					r := &http.Request{
 						Method: http.MethodGet,
 						URL: &url.URL{
@@ -119,15 +114,24 @@ func TestService_Fetch(t *testing.T) {
 								{"CNY", "11.749"},
 								{"RUR", "1"},
 								{"RUR", "1"},
-								{"RUR", "1"},
+								{"RUR", "2"},
 							},
 						},
 					}, nil)
 					return m
 				}(),
 				Storage: func() Storage {
-					m := service.NewMockStorage(ctrl)
-					m.EXPECT()
+					m := mockService.NewMockStorage(ctrl)
+					p := mockStorage.NewMockProducts(ctrl)
+					gomock.InOrder(
+						p.EXPECT().Push("USD", 75.905).Return(0, nil),
+						p.EXPECT().Push("EUR", 91.625).Return(0, nil),
+						p.EXPECT().Push("CNY", 11.749).Return(0, nil),
+						p.EXPECT().Push("RUR", 1.).Return(0, nil),
+						p.EXPECT().Push("RUR", 1.).Return(1, nil),
+						p.EXPECT().Push("RUR", 2.).Return(2, nil),
+					)
+					m.EXPECT().Products().Return(p).Times(6)
 					return m
 				}(),
 			},
@@ -135,9 +139,9 @@ func TestService_Fetch(t *testing.T) {
 				ctx:   ctx,
 				query: query{url: "http://localhost/"},
 			},
-			wantChanged: 0,
-			wantLoaded:  0,
-			wantAdded:   0,
+			wantChanged: 1,
+			wantLoaded:  6,
+			wantAdded:   4,
 			wantErr:     false,
 		},
 	}

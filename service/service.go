@@ -1,5 +1,8 @@
 package service
 
+//go:generate mockgen --destination=mock/browser.go . Browser
+//go:generate mockgen --destination=mock/storage.go . Storage
+
 import (
 	"github.com/pshvedko/grpc-product/storage"
 	"net/http"

@@ -1,5 +1,7 @@
 package storage
 
+//go:generate mockgen --destination=mock/products.go . Products
+
 import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
