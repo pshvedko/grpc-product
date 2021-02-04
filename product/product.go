@@ -24,11 +24,11 @@ type Application struct {
 	Id uint32
 }
 
-func (s Application) Start() error {
-	return s.Service.Start(s.Id)
+func (a Application) Start() error {
+	return a.Service.Start(a.Id)
 }
 
-func (s Application) mustEmbedUnimplementedProductServiceServer() {}
+func (a Application) mustEmbedUnimplementedProductServiceServer() {}
 
 var (
 	ErrService = status.Error(codes.Internal, "service is not defined")

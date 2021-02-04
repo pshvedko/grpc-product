@@ -5,11 +5,11 @@ import (
 	"log"
 )
 
-func (s Application) List(ctx context.Context, query *ListQuery) (*ListReply, error) {
-	if s.Service == nil {
+func (a Application) List(ctx context.Context, query *ListQuery) (*ListReply, error) {
+	if a.Service == nil {
 		return nil, ErrService
 	}
-	rows, err := s.Service.List(ctx, query)
+	rows, err := a.Service.List(ctx, query)
 	log.Printf("list: %v %v", query, err)
 	if err != nil {
 		return nil, err
@@ -26,5 +26,5 @@ func (s Application) List(ctx context.Context, query *ListQuery) (*ListReply, er
 		}
 		products = append(products, &row)
 	}
-	return &ListReply{Products: products, Node: s.Id}, nil
+	return &ListReply{Products: products, Node: a.Id}, nil
 }
