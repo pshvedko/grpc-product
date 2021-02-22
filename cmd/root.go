@@ -2,16 +2,17 @@ package cmd
 
 import (
 	"fmt"
-	"net"
-	"net/http"
-	"os"
-	"path/filepath"
-
 	"github.com/pshvedko/grpc-product/product"
 	"github.com/pshvedko/grpc-product/service"
 	"github.com/pshvedko/grpc-product/storage"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
 )
 
 import _ "github.com/pshvedko/grpc-product/migrate"
@@ -57,8 +58,18 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 	defer api.Stop()
 	server := grpc.NewServer()
 	product.RegisterProductServiceServer(server, api)
+	go onSignal(server.GracefulStop, syscall.SIGINT, syscall.SIGTERM)
 	err = server.Serve(listener)
 	return
+}
+
+func onSignal(f func(), signals ...os.Signal) {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, signals...)
+	<-c
+	f()
+	signal.Stop(c)
+	close(c)
 }
 
 func Execute() {
