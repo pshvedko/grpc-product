@@ -55,11 +55,11 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 	defer api.Stop()
 	server := grpc.NewServer()
 	product.RegisterProductServiceServer(server, api)
-	e := make(chan error, 1)
+	e := make(chan error)
 	go func() {
 		e <- server.Serve(listener)
 	}()
-	c := make(chan os.Signal, 1)
+	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	defer close(c)
 	defer close(e)
