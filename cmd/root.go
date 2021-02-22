@@ -63,11 +63,11 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 	return
 }
 
-func onSignal(f func(), signals ...os.Signal) {
+func onSignal(do func(), signals ...os.Signal) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, signals...)
 	<-c
-	f()
+	do()
 	signal.Stop(c)
 	close(c)
 }
