@@ -24,14 +24,11 @@ var rootCmd = &cobra.Command{
 }
 
 func runServe(cmd *cobra.Command, _ []string) (err error) {
-	flag := cmd.Flag("node")
-	if flag != nil && flag.Changed && !serverFlag {
-		return fmt.Errorf("malformed usage flag: -n %s", flag.Usage)
-	} else if !serverFlag {
+	if !serverFlag {
 		return cmd.Usage()
 	}
 	var listener net.Listener
-	listener, err = net.ListenTCP("tcp", &addrFlag)
+	listener, err = net.ListenTCP("tcp", &addressFlag)
 	if err != nil {
 		return
 	}
@@ -41,11 +38,11 @@ func runServe(cmd *cobra.Command, _ []string) (err error) {
 			Browser: &http.Client{},
 			Storage: &storage.Storage{
 				Mongo: &storage.Mongo{
-					Addrs:     []string{"mongo:27017"},
-					Database:  "foo",
-					Username:  "",
-					Password:  "",
-					PoolLimit: 10,
+					Addrs:     mongo.addressesFlag,
+					Database:  mongo.nameFlag,
+					Username:  mongo.userFlag,
+					Password:  mongo.passFlag,
+					PoolLimit: mongo.poolFlag,
 				},
 			},
 		},
@@ -79,13 +76,27 @@ func Execute() {
 	}
 }
 
-var addrFlag net.TCPAddr
-var serverFlag bool
-var nodeFlag uint32
+var (
+	addressFlag net.TCPAddr
+	serverFlag  bool
+	nodeFlag    uint32
+	mongo       struct {
+		addressesFlag []string
+		nameFlag      string
+		userFlag      string
+		passFlag      string
+		poolFlag      int
+	}
+)
 
 func init() {
-	rootCmd.Flags().BoolVarP(&serverFlag, "", "s", false, "run in service mode")
-	rootCmd.Flags().Uint32VarP(&nodeFlag, "node", "n", 0, "node id used with -s")
-	rootCmd.PersistentFlags().IntVarP(&addrFlag.Port, "port", "p", 9000, "port to listen")
-	rootCmd.PersistentFlags().IPVarP(&addrFlag.IP, "addr", "a", net.IP{0, 0, 0, 0}, "address to bind")
+	rootCmd.Flags().BoolVarP(&serverFlag, "serve", "s", false, "run in service mode")
+	rootCmd.Flags().Uint32VarP(&nodeFlag, "node", "n", 0, "node id")
+	rootCmd.Flags().StringArrayVarP(&mongo.addressesFlag, "mongo", "m", []string{"mongo:27017"}, "mongo addresses")
+	rootCmd.Flags().StringVarP(&mongo.nameFlag, "mongo-db-name", "N", "foo", "mongo db name")
+	rootCmd.Flags().StringVarP(&mongo.userFlag, "mongo-user", "U", "", "mongo user")
+	rootCmd.Flags().StringVarP(&mongo.passFlag, "mongo-pass", "P", "", "mongo password")
+	rootCmd.Flags().IntVarP(&mongo.poolFlag, "mongo-pool", "S", 10, "mongo pool size")
+	rootCmd.PersistentFlags().IntVarP(&addressFlag.Port, "port", "p", 9000, "port to listen")
+	rootCmd.PersistentFlags().IPVarP(&addressFlag.IP, "addr", "a", net.IP{0, 0, 0, 0}, "address to bind")
 }

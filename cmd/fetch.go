@@ -28,7 +28,7 @@ func runFetch(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("invalid url: please specify as 'http://host/file.csv'")
 	}
 	var dial *grpc.ClientConn
-	dial, err = grpc.Dial(addrFlag.String(), grpc.WithInsecure())
+	dial, err = grpc.Dial(addressFlag.String(), grpc.WithInsecure())
 	if err != nil {
 		return
 	}

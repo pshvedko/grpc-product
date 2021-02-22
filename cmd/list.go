@@ -19,7 +19,7 @@ var listCmd = &cobra.Command{
 
 func runList(*cobra.Command, []string) (err error) {
 	var dial *grpc.ClientConn
-	dial, err = grpc.Dial(addrFlag.String(), grpc.WithInsecure())
+	dial, err = grpc.Dial(addressFlag.String(), grpc.WithInsecure())
 	if err != nil {
 		return
 	}
