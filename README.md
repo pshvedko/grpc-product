@@ -56,7 +56,7 @@ Use "grpc-product [command] --help" for more information about a command.
 #### Fetch
 Getting CSV file and saving to mongodb
 ```
-./grpc-product fetch https://raw.githubusercontent.com/pshvedko/grpc-product/main/test.csv
+./grpc-product fetch https://raw.githubusercontent.com/pshvedko/grpc-product/main/PRODUCT.csv
 ```
 #### List
 Getting a list of products of 5 lines with an offset of 10 lines when sorting 
