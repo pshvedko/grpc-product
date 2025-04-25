@@ -19,3 +19,4 @@
 *.pb.go
 mock
 grpc-product
+gen

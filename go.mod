@@ -3,11 +3,12 @@ module github.com/pshvedko/grpc-product
 go 1.21
 
 require (
+	connectrpc.com/connect v1.18.1
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/golang/mock v1.6.0
 	github.com/spf13/cobra v1.9.1
 	google.golang.org/grpc v1.65.0
-	google.golang.org/protobuf v1.34.1
+	google.golang.org/protobuf v1.34.2
 )
 
 require (

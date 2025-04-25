@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package product;
 
-option go_package = ".;product";
+//option go_package = "github.com/pshvedko/grpc-product/gen/product;product";
 
 import "google/protobuf/timestamp.proto";
 
